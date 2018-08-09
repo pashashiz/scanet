@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="scanet,scala-net">
+      <option name="higherKinds" value="true" />
+      <parameters>
+        <parameter value="-Ypartial-unification" />
+      </parameters>
+      <plugins>
+        <plugin path="$USER_HOME$/.ivy2/cache/org.scalamacros/paradise_2.12.4/jars/paradise_2.12.4-2.1.0.jar" />
+      </plugins>
+    </profile>
+  </component>
+</project>
