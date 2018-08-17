@@ -1,33 +1,39 @@
 package io.scanet.nn
 
-import breeze.linalg.{DenseMatrix, DenseVector, sum}
-import breeze.numerics.pow
-import io.scanet.func.{DiffFunction, splitXY}
-import simulacrum.typeclass
+import breeze.linalg.DenseMatrix
+import io.scanet.core.Product
+import simulacrum.{op, typeclass}
+
 
 // Layer can be converted to diff function
-// SGD.optimize((Dense(1, 2) :: Dense(1, 2)).toDFBuilder[A])
+// SGD.optimize((Dense(1, 2) <+> Dense(1, 2)).toDFBuilder[A])
 // or with ToDFBuilder[A]Opt
-// SGD.optimize(Dense(1, 2) :: Dense(1, 2))
+// SGD.optimize(Dense(1, 2) <+> Dense(1, 2))
 
-// we will have a method append "::" to compose 2 layers and as a result we will get Layer[Composed]
 
-@typeclass
-trait Layer[A] {
+@typeclass trait Layer[L] extends Product[L] {
 
-  def forward(layer: A, coef: DenseVector[Double], vars: DenseMatrix[Double]): DenseVector[Double]
+  /**
+    * Forward propagation
+    *
+    * @param layer Layer
+    * @param theta [OUTxIN] matrix where each row has a vector of coefficients for a neuron (OUT neurons, IN coefficients)
+    * @param input [input: MxIN] matrix where each row is a an item from training set containing a vector of features (M rows, IN features)
+    * @return [MxOUT] matrix where each row will contain all activations for an item from training set
+    */
+  def forward(layer: L, theta: List[DenseMatrix[Double]], input: DenseMatrix[Double]): DenseMatrix[Double]
 
-//  def toDFBuilder[A](layer: A): DFBuilder[A] =
-//    coef => new DiffFunction {
-//
-//      override def apply(vars: DenseMatrix[Double]): Double = {
-//        val (xs, y) = splitXY(vars)
-//        def result = forward(layer, coef, xs)
-//        0.5/(vars.rows: Double) * sum(pow(result - y, 2))
-//      }
-//
-//      override def gradient(vars: DenseMatrix[Double]): DenseVector[Double] = ???
-//    }
+  /**
+    * Backward propagation
+    *
+    * @param layer Layer
+    * @param theta [OUTxIN] matrix where each row has a vector of coefficients for a neuron (OUT neurons, IN coefficients)
+    * @param input [input: MxIN] matrix where each row is a an item from training set containing a vector of features (M rows, IN features)
+    * @param error [output: MxOUT] matrix where each row is a an item from training set containing a vector of activation errors for each neuron (M rows, OUT neurons)
+    * @return [OUTxIN] coefficient gradients
+    */
+  def backprop(layer: L, theta: List[DenseMatrix[Double]], input: DenseMatrix[Double], error: DenseMatrix[Double]): (DenseMatrix[Double], List[DenseMatrix[Double]])
 
+  def power(layer: L): Int = 1
 
 }

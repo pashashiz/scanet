@@ -1,16 +1,17 @@
 package io.scanet
 
-import io.scanet.func.{DefaultFunctionsInst, Function, DiffFunction, FunctionsInst, FunctionsSyntax}
+import io.scanet.core.CoreSyntax
+import io.scanet.func.{FunctionsInst, FunctionsSyntax}
+import io.scanet.nn.{NNInst, NNSyntax}
 import io.scanet.optimizers.{OptimizerInst, OptimizerSyntax}
 
 object syntax
-  extends OptimizerSyntax
-     with OptimizerInst
-     with DefaultFunctionsInst
-     with FunctionsInst
-     with FunctionsSyntax
-     with cats.syntax.AllSyntax
-     with cats.instances.AllInstances
-//     with DiffFunction.ToDiffFunctionOps
-//     with Function.ToFunctionOps
-{}
+  extends CoreSyntax
+    with FunctionsInst
+    with FunctionsSyntax
+    with OptimizerSyntax
+    with OptimizerInst
+    with NNInst
+    with NNSyntax
+    with cats.syntax.AllSyntax
+    with cats.instances.AllInstances {}

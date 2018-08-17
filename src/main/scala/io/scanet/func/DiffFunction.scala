@@ -1,19 +1,9 @@
 package io.scanet.func
 
 import breeze.linalg.{*, DenseMatrix, DenseVector}
+import io.scanet.core._
 import io.scanet.func.DiffFunction.DFBuilder
-import simulacrum.{op, typeclass}
-
-@typeclass trait Product[A] {
-
-  @op("|+|", alias = true)
-  def product[B](a: A, b: B): (A, B) = (a, b)
-}
-
-@typeclass trait ProductK[F[_]] {
-  @op("<+>", alias = true)
-  def productK[A, B](fa: F[A], fb: F[B]): F[(A, B)]
-}
+import simulacrum.typeclass
 
 
 @typeclass trait Function[A] extends Product[A] {
@@ -22,6 +12,16 @@ import simulacrum.{op, typeclass}
 
   def apply(f: A , vars: DenseMatrix[Double]): DenseVector[Double] =
     vars(*, ::).map(apply(f, _))
+
+  def apply1(f: A, vars1: Double): Double =
+    apply(f, DenseVector(vars1))
+
+  def apply1(f: A, vars1: DenseVector[Double]): DenseVector[Double] =
+    apply(f, DenseMatrix(vars1))
+
+  def apply1(f: A, vars1: DenseMatrix[Double]): DenseMatrix[Double] =
+    vars1(*, ::).map(apply1(f, _))
+
 }
 
 @typeclass trait DiffFunction[A] extends Function[A] {
@@ -30,6 +30,15 @@ import simulacrum.{op, typeclass}
 
   def gradient(f: A , vars: DenseMatrix[Double]): DenseMatrix[Double] =
     vars(*, ::).map(gradient(f, _))
+
+  def gradient1(f: A , vars1: Double): Double =
+    gradient(f, DenseVector(vars1))(0)
+
+  def gradient1(f: A , vars1: DenseVector[Double]): DenseVector[Double] =
+    gradient(f, DenseMatrix(vars1))(::, 0)
+
+  def gradient1(f: A , vars1: DenseMatrix[Double]): DenseMatrix[Double] =
+    vars1(*, ::).map(gradient1(f, _))
 }
 
 object DiffFunction {
@@ -54,9 +63,3 @@ trait DefaultFunctionsInst {
       coef => (fa(coef), fb(coef))
   }
 }
-
-trait FunctionsSyntax
-  extends Function.ToFunctionOps
-    with DiffFunction.ToDiffFunctionOps
-    with ProductK.ToProductKOps
-    with Product.ToProductOps

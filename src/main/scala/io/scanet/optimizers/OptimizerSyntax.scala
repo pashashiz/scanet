@@ -55,7 +55,7 @@ trait OptimizerSyntax extends Optimizer.ToOptimizerOps {
     }
 
   def takeWhile[F[_], A, B](acc: B, mappend: (B, Event[A]) => B)
-                        (enough: B => Boolean): Pipe[F, Event[A], Event[A]] = {
+                           (enough: B => Boolean): Pipe[F, Event[A], Event[A]] = {
     def go(s: Stream[F, Event[A]], acc: B): Pull[F, Event[A], Unit] = {
       /*_*/
       s.pull.uncons1.flatMap {

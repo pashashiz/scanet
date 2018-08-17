@@ -15,9 +15,18 @@ trait CustomMatchers extends Matchers {
 
   def beWithinTolerance(mean: DenseVector[Double], tolerance: Double): Matcher[DenseVector[Double]] = {
     left: DenseVector[Double] => {
-      val diff: DenseVector[Double] = abs(left - mean)
+      val diff = abs(left - mean)
       val results: BitVector = diff <:< DenseVector.fill(mean.length, tolerance)
       val matches = results.reduce(_ && _)
+      MatchResult(matches, s"$left does not equal to $mean +/-$tolerance", "")
+    }
+  }
+
+  def beWithinTolerance(mean: DenseMatrix[Double], tolerance: Double): Matcher[DenseMatrix[Double]] = {
+    left: DenseMatrix[Double] => {
+      val diff = abs(left - mean)
+      val results = diff <:< DenseMatrix.fill(mean.rows, mean.cols)(tolerance)
+      val matches = results(*, ::).map(_.reduce(_ && _)).reduce(_ && _)
       MatchResult(matches, s"$left does not equal to $mean +/-$tolerance", "")
     }
   }

@@ -187,9 +187,6 @@ package object func {
     */
   case class L1(coef: DenseMatrix[Double], lambda: Double)
 
-  /**
-    * NOTE: each row in `coef` increases the exponent
-    */
   def l1(lambda: Double = 1.0): DFBuilder[L1] = coef => L1(coef, lambda)
 
   trait L1FunctionInst {
@@ -214,12 +211,9 @@ package object func {
     *
     * @param lambda regularization coefficient
     */
-  case class L2(coef: DenseMatrix[Double], lambda: Double = 1.0)
+  case class L2(coef: DenseMatrix[Double], lambda: Double)
 
-  /**
-    * NOTE: each row in `coef` increases the exponent
-    */
-  def l2(lambda: Double = 1.0): DFBuilder[L2] = coef => L2(coef)
+  def l2(lambda: Double = 1.0): DFBuilder[L2] = coef => L2(coef, lambda)
 
   trait L2FunctionInst {
 
@@ -237,11 +231,36 @@ package object func {
     }
   }
 
-  trait FunctionsInst
-    extends LinearFunctionInst
-    with PolynomialFunctionInst
-    with LinearRegressionFunctionInst
-    with LogisticRegressionFunctionInst
-    with L1FunctionInst
-    with L2FunctionInst
+  case class Sigmoid()
+
+  trait SigmoidInst {
+
+    implicit def sigmoidFunctionInst: DiffFunction[Sigmoid] = new DiffFunction[Sigmoid] {
+
+      override def apply1(f: Sigmoid, vars1: Double): Double = breeze.numerics.sigmoid(vars1)
+
+      override def apply1(f: Sigmoid, vars1: DenseVector[Double]): DenseVector[Double] = breeze.numerics.sigmoid(vars1)
+
+      override def apply1(f: Sigmoid, vars1: DenseMatrix[Double]): DenseMatrix[Double] = breeze.numerics.sigmoid(vars1)
+
+      override def gradient1(f: Sigmoid, vars1: Double): Double = {
+        val s = breeze.numerics.sigmoid(vars1)
+        s - pow(s, 2)
+      }
+
+      override def gradient1(f: Sigmoid, vars1: DenseVector[Double]): DenseVector[Double] = {
+        val s = breeze.numerics.sigmoid(vars1)
+        s - pow(s, 2)
+      }
+
+      override def gradient1(f: Sigmoid, vars1: DenseMatrix[Double]): DenseMatrix[Double] = {
+        val s = breeze.numerics.sigmoid(vars1)
+        s - pow(s, 2)
+      }
+
+      override def apply(f: Sigmoid, vars: DenseVector[Double]): Double = apply1(f, vars(0))
+
+      override def gradient(f: Sigmoid, vars: DenseVector[Double]): DenseVector[Double] = DenseVector(gradient1(f, vars(0)))
+    }
+  }
 }
