@@ -2,7 +2,6 @@ package io.scanet.func
 
 import breeze.linalg.{*, DenseMatrix, DenseVector}
 import io.scanet.core._
-import io.scanet.func.DiffFunction.DFBuilder
 import simulacrum.typeclass
 
 
@@ -41,25 +40,19 @@ import simulacrum.typeclass
     vars1(*, ::).map(gradient1(f, _))
 }
 
+@typeclass trait FunctionM[A] extends Product[A] {
+
+  def apply(f: A , vars: DenseVector[Double]): DenseVector[Double]
+
+  def apply(f: A , vars: DenseMatrix[Double]): DenseMatrix[Double] =
+    vars(*, ::).map(apply(f, _))
+
+}
+
 object DiffFunction {
 
   type DFBuilder[B] = DenseMatrix[Double] => B
 
 }
 
-trait DefaultFunctionsInst {
 
-  implicit def tupleDiffFunctionXInst[A: DiffFunction, B: DiffFunction]: DiffFunction[(A, B)] = new DiffFunction[(A, B)] {
-
-    override def gradient(f: (A, B), vars: DenseVector[Double]): DenseVector[Double] =
-      DiffFunction[A].gradient(f._1, vars) + DiffFunction[B].gradient(f._2, vars)
-
-    override def apply(f: (A, B), vars: DenseVector[Double]): Double =
-      DiffFunction[A].apply(f._1, vars) + DiffFunction[B].apply(f._2, vars)
-  }
-
-  implicit def DFBuilderProductK: ProductK[DFBuilder] = new ProductK[DFBuilder] {
-    override def productK[A, B](fa: DFBuilder[A], fb: DFBuilder[B]): DFBuilder[(A, B)] =
-      coef => (fa(coef), fb(coef))
-  }
-}

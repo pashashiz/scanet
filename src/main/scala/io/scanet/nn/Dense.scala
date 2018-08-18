@@ -19,7 +19,8 @@ trait DenseLayerInst {
       * @return [MxOUT] matrix where each row will contain all activations for an item from training set
       */
     override def forward(layer: Dense[A], theta: List[DenseMatrix[Double]], input: DenseMatrix[Double]): DenseMatrix[Double] = {
-      layer.activation.apply1(input * theta.head.t)
+      val f = input * theta.head.t
+      layer.activation.apply1(f)
     }
 
     /**
@@ -37,5 +38,7 @@ trait DenseLayerInst {
       val delta: DenseMatrix[Double] = grad *:* error // MxOUT
       (delta, List(delta.t * input))
     }
+
+    override def shape(layer: Dense[A]): List[Int] = List(layer.units)
   }
 }

@@ -1,12 +1,16 @@
-package io.scanet.func
+package io.scanet.nn
 
-import breeze.linalg.DenseMatrix
-import io.scanet.nn.{Dense, DenseLayerInst, TupleLayerInst}
+import breeze.linalg._
+import io.scanet.func.{Sigmoid, SigmoidInst}
+import io.scanet.optimizers.{Adam, SGD}
 import io.scanet.syntax._
 import io.scanet.test.CustomMatchers
 import org.scalatest.FlatSpec
 
-class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with TupleLayerInst with SigmoidInst {
+import scala.concurrent.ExecutionContext.Implicits._
+
+
+class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with OtherLayersInst with SigmoidInst with NNInst {
 
   "dense layer" should "have working forward propagation" in {
     // M: 4, IN: 3, OUT: 4
@@ -46,7 +50,7 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Tuple
       (0.0041, 0.0203, 0.0407, 0.000),
       (0.0043, 0.0215, 0.0430, 0.000),
       (-0.0127, -0.0637, -0.1274, 0.000))
-    val (delta, grad) = Dense(2, activation = Sigmoid()) backprop (List(coef), input, error)
+    val (delta, grad) = Dense(4, activation = Sigmoid()) backprop (List(coef), input, error)
     val expected = DenseMatrix(
       (-0.007, -0.004, -0.003),
       (-0.004, -0.005, -0.019),
@@ -70,7 +74,7 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Tuple
     val coef2 = DenseMatrix(
       (0.1, 0.5, 1.0, 0.0))
     val coef = List(coef1, coef2)
-    val nn = Dense(2, Sigmoid()) |+| Dense(2, Sigmoid())
+    val nn = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
     val output = nn forward (coef, input)
     val expected = DenseMatrix(
       0.705,
@@ -95,7 +99,7 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Tuple
     val coef2 = DenseMatrix(
       (0.1, 0.5, 1.0, 0.0))
     val coef = List(coef1, coef2)
-    val nn = Dense(2, Sigmoid()) |+| Dense(2, Sigmoid())
+    val nn = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
     val output = nn forward (coef, input)
     val outputExpected = DenseMatrix(
       0.0,
@@ -123,15 +127,43 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Tuple
       (0.0, 1.0, 1.0),
       (1.0, 0.0, 1.0),
       (1.0, 1.0, 1.0))
-    val coef1 = DenseMatrix(
-      (1.0, 0.1, 1.0),
-      (0.5, 1.0, 0.0),
-      (1.0, 1.0, 0.2),
-      (0.1, 1.0, 0.3))
-    val coef2 = DenseMatrix(
-      (0.1, 0.5, 1.0, 0.0))
+    val output = DenseMatrix(
+      0.0,
+      1.0,
+      1.0,
+      0.0)
+    val coef1 = DenseMatrix.rand[Double](4, 3) - 0.5
+    val coef2 = DenseMatrix.rand[Double](1, 4) - 0.5
     val coef = List(coef1, coef2)
-    val nn = Dense(2, Sigmoid()) |+| Dense(2, Sigmoid())
-    // TODO to DiffFunction and run optimizer
+    val layers = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
+    val theta = Adam(rate = 0.3)
+      .minimize(nnError(layers, output), input, layers.pack(coef))
+      .through(iter(500))
+      .observe(logStdOut)
+      .observe(plotToFile("Adam:simple-ANN.png"))
+      .runSync.vars
+    var func = nnError(layers, output).apply(input)
+    func(theta) should beWithinTolerance(0, 0.1)
   }
+
+  "neural network instead of logistic regression" should "work" in {
+    val read = breeze.linalg.csvread(resource("logistic_regression_1.scv"))
+    val (scale, input) = normalize(read(::, 0 to 1))
+    val output = read(::, 2).toDenseMatrix.t
+    val coef1 = DenseMatrix.rand[Double](4, 2) - 0.5
+    val coef2 = DenseMatrix.rand[Double](1, 4) - 0.5
+    val coef = List(coef1, coef2)
+    val model = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
+    val theta = SGD(rate = 0.5)
+      .minimize(nnError(model, output), input, model.pack(coef))
+      .through(iter(50))
+      .observe(logStdOut)
+      .observe(plotToFile("Adam:ANN-instead-of-logistic.png"))
+      .runSync.vars
+    val classifier = nn(model)(theta)
+    val prediction = classifier(input).map(value => if (value > 0.5) 1.0 else 0.0)
+    val accuracy = sum((prediction :== output).map(value => if (value) 1.0 else 0.0))
+    accuracy should beWithinTolerance(91, 5)
+  }
+
 }

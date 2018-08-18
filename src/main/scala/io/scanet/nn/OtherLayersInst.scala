@@ -1,10 +1,10 @@
 package io.scanet.nn
 
-import breeze.linalg.DenseMatrix
+import breeze.linalg.{DenseMatrix, DenseVector}
 import io.scanet.nn.Layer.ops._
 
 
-trait TupleLayerInst {
+trait OtherLayersInst {
 
   implicit def TupleLayer[A: Layer, B: Layer]: Layer[(A, B)] = new Layer[(A, B)] {
 
@@ -47,10 +47,14 @@ trait TupleLayerInst {
       (leftDelta, leftGrad ++ rightGrad)
     }
 
-    override def power(layer: (A, B)): Int = {
-      val (left, right) = layer
-      left.power + right.power
+    override def power(layer: (A, B)): Int = layer match {
+      case (left, right) => left.power + right.power
+    }
+
+    override def shape(layer: (A, B)): List[Int] = layer match {
+      case (left, right) => left.shape ++ right.shape
     }
   }
-
 }
+
+

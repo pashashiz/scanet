@@ -1,7 +1,9 @@
 package io.scanet.nn
 
 trait NNInst
-  extends TupleLayerInst
-    with DenseLayerInst{
+  extends OtherLayersInst
+    with DenseLayerInst
+    with NNErrorFunctionInst
+    with NNFunctionInst {
 
 }

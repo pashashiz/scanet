@@ -1,8 +1,9 @@
-package io.scanet.func
+package io.scanet.nn
 
 import breeze.linalg._
-import org.scalatest.FlatSpec
+import io.scanet.func.Sigmoid
 import io.scanet.syntax._
+import org.scalatest.FlatSpec
 
 class NNIntro extends FlatSpec {
 

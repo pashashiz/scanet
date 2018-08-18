@@ -1,14 +1,8 @@
 package io.scanet.nn
 
-import breeze.linalg.DenseMatrix
+import breeze.linalg.{DenseMatrix, DenseVector}
 import io.scanet.core.Product
-import simulacrum.{op, typeclass}
-
-
-// Layer can be converted to diff function
-// SGD.optimize((Dense(1, 2) <+> Dense(1, 2)).toDFBuilder[A])
-// or with ToDFBuilder[A]Opt
-// SGD.optimize(Dense(1, 2) <+> Dense(1, 2))
+import simulacrum.typeclass
 
 
 @typeclass trait Layer[L] extends Product[L] {
@@ -35,5 +29,24 @@ import simulacrum.{op, typeclass}
   def backprop(layer: L, theta: List[DenseMatrix[Double]], input: DenseMatrix[Double], error: DenseMatrix[Double]): (DenseMatrix[Double], List[DenseMatrix[Double]])
 
   def power(layer: L): Int = 1
+
+  def shape(layer: L): List[Int]
+
+  def pack(layer: L, vars: List[DenseMatrix[Double]]): DenseVector[Double] = {
+    vars.foldLeft(DenseVector[Double]())(
+      (acc, layer) => DenseVector.vertcat(acc, layer.t.toDenseVector))
+  }
+
+  def unpack(layer: L, inputCols: Int)(vars: DenseVector[Double]): List[DenseMatrix[Double]] = {
+    def go(shape: List[Int], skip: Int, acc: List[DenseMatrix[Double]]): List[DenseMatrix[Double]] = shape match {
+      case Nil => acc
+      case first::second::tail =>
+        val end = skip + first * second
+        val layer = vars(skip until end).toDenseMatrix.reshape(first, second).t
+        go(if (tail != Nil) second::tail else Nil, end, layer :: acc)
+    }
+    val fullShape = inputCols :: shape(layer)
+    go(fullShape, 0, List()).reverse
+  }
 
 }

@@ -1,7 +1,7 @@
 package io.scanet.func
 
 trait FunctionsInst
-  extends DefaultFunctionsInst
+  extends OtherFunctionsInst
     with LinearFunctionInst
     with PolynomialFunctionInst
     with LinearRegressionFunctionInst
