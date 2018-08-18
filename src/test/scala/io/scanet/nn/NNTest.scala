@@ -120,7 +120,7 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
     grad2 should beWithinTolerance(expectedGrad2, 0.01)
   }
 
-  "simple neural network" should "work" in {
+  "simple neural network" should "be optimized with low error" in {
     // M: 4, IN: 3, Layer 1: 4, Layer 2: 1
     val input = DenseMatrix(
       (0.0, 0.0, 1.0),
@@ -142,11 +142,11 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       .observe(logStdOut)
       .observe(plotToFile("Adam:simple-ANN.png"))
       .runSync.vars
-    var func = nnError(layers, output).apply(input)
-    func(theta) should beWithinTolerance(0, 0.1)
+    var error = nnError(layers, output).apply(input)
+    error(theta) should beWithinTolerance(0, 0.1)
   }
 
-  "neural network instead of logistic regression" should "work" in {
+  "neural network" should "classify with high accuracy" in {
     val read = breeze.linalg.csvread(resource("logistic_regression_1.scv"))
     val (scale, input) = normalize(read(::, 0 to 1))
     val output = read(::, 2).toDenseMatrix.t
