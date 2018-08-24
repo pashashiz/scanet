@@ -145,9 +145,9 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
   }
 
   "neural network" should "classify with high accuracy" in {
-    val read = breeze.linalg.csvread(resource("logistic_regression_1.scv"))
-    val (inRaw, output) = splitColsAt(read, 2)
-    val (_, input) = normalize(inRaw)
+    val read = csvread(resource("logistic_regression_1.scv"))
+    val (inputRaw, output) = splitColsAt(read, 2)
+    val (_, input) = normalize(inputRaw)
     val model = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
     val weights = SGD(rate = 0.5)
       .minimize(nnError(model, output(0 to 89, ::)), input(0 to 89, ::))
