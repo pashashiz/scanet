@@ -2,6 +2,7 @@ package io.scanet.nn
 
 import breeze.linalg._
 import io.scanet.func.{Sigmoid, SigmoidInst}
+import io.scanet.linalg.splitColsAt
 import io.scanet.optimizers.{Adam, SGD}
 import io.scanet.syntax._
 import io.scanet.test.CustomMatchers
@@ -145,8 +146,8 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
 
   "neural network" should "classify with high accuracy" in {
     val read = breeze.linalg.csvread(resource("logistic_regression_1.scv"))
-    val (scale, input) = normalize(read(::, 0 to 1))
-    val output = read(::, 2).toDenseMatrix.t
+    val (inRaw, output) = splitColsAt(read, 2)
+    val (_, input) = normalize(inRaw)
     val model = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
     val weights = SGD(rate = 0.5)
       .minimize(nnError(model, output(0 to 89, ::)), input(0 to 89, ::))
