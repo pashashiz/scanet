@@ -20,10 +20,10 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       (1.0, 0.0, 1.0),
       (1.0, 1.0, 1.0))
     val coef = DenseMatrix(
-      (1.0, 0.1, 1.0),
-      (0.5, 1.0, 0.0),
-      (1.0, 1.0, 0.2),
-      (0.1, 1.0, 0.3))
+      (0.0, 1.0, 0.1, 1.0),
+      (0.0, 0.5, 1.0, 0.0),
+      (0.0, 1.0, 1.0, 0.2),
+      (0.0, 0.1, 1.0, 0.3))
     val output = Dense(4, activation = Sigmoid()) forward (List(coef), input)
     val expected = DenseMatrix(
       (0.731, 0.500, 0.549, 0.574),
@@ -41,10 +41,10 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       (1.0, 0.0, 1.0),
       (1.0, 1.0, 1.0))
     val coef = DenseMatrix(
-      (1.0, 0.1, 1.0),
-      (0.5, 1.0, 0.0),
-      (1.0, 1.0, 0.2),
-      (0.1, 1.0, 0.3))
+      (0.0, 1.0, 0.1, 1.0),
+      (0.0, 0.5, 1.0, 0.0),
+      (0.0, 1.0, 1.0, 0.2),
+      (0.0, 0.1, 1.0, 0.3))
     val error = DenseMatrix(
       (-0.0146, -0.0732, -0.1465, 0.000),
       (0.0041, 0.0203, 0.0407, 0.000),
@@ -52,10 +52,10 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       (-0.0127, -0.0637, -0.1274, 0.000))
     val (delta, grad) = Dense(4, activation = Sigmoid()) backprop (List(coef), input, error)
     val expected = DenseMatrix(
-      (-0.007, -0.004, -0.003),
-      (-0.004, -0.005, -0.019),
-      (-0.003, -0.004, -0.032),
-      (-0.000, -0.000, -0.000))
+      (-0.002, -0.007, -0.004, -0.003),
+      (-0.019, -0.004, -0.005, -0.019),
+      (-0.033, -0.003, -0.004, -0.032),
+      (-0.000, -0.000, -0.000, -0.000))
     grad.head should beWithinTolerance(expected, 0.01)
   }
 
@@ -67,12 +67,12 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       (1.0, 0.0, 1.0),
       (1.0, 1.0, 1.0))
     val coef1 = DenseMatrix(
-      (1.0, 0.1, 1.0),
-      (0.5, 1.0, 0.0),
-      (1.0, 1.0, 0.2),
-      (0.1, 1.0, 0.3))
+      (0.0, 1.0, 0.1, 1.0),
+      (0.0, 0.5, 1.0, 0.0),
+      (0.0, 1.0, 1.0, 0.2),
+      (0.0, 0.1, 1.0, 0.3))
     val coef2 = DenseMatrix(
-      (0.1, 0.5, 1.0, 0.0))
+      (0.0, 0.1, 0.5, 1.0, 0.0))
     val coef = List(coef1, coef2)
     val nn = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
     val output = nn forward (coef, input)
@@ -92,12 +92,12 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       (1.0, 0.0, 1.0),
       (1.0, 1.0, 1.0))
     val coef1 = DenseMatrix(
-      (1.0, 0.1, 1.0),
-      (0.5, 1.0, 0.0),
-      (1.0, 1.0, 0.2),
-      (0.1, 1.0, 0.3))
+      (0.0, 1.0, 0.1, 1.0),
+      (0.0, 0.5, 1.0, 0.0),
+      (0.0, 1.0, 1.0, 0.2),
+      (0.0, 0.1, 1.0, 0.3))
     val coef2 = DenseMatrix(
-      (0.1, 0.5, 1.0, 0.0))
+      (0.0, 0.1, 0.5, 1.0, 0.0))
     val coef = List(coef1, coef2)
     val nn = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
     val output = nn forward (coef, input)
@@ -110,13 +110,13 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
     val (delta, grad) = nn backprop (coef, input, error)
     val grad1::grad2::Nil = grad
     val expectedGrad1 = DenseMatrix(
-      (-0.007, -0.004, 0.003),
-      (-0.004, -0.005, -0.019),
-      (-0.003, -0.004, -0.032),
-      (-0.000, -0.000, -0.000))
+      (-0.003, -0.001, -0.000, -0.003),
+      (-0.018, -0.004, -0.005, -0.019),
+      (-0.032, -0.004, -0.004, -0.032),
+      ( 0.000,  0.000,  0.000,  0.000))
     grad1 should beWithinTolerance(expectedGrad1, 0.01)
     val expectedGrad2 = DenseMatrix(
-      (-0.152, -0.121, -0.131, -0.129))
+      (-0.191, -0.152, -0.121, -0.131, -0.129))
     grad2 should beWithinTolerance(expectedGrad2, 0.01)
   }
 
@@ -132,38 +132,32 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       1.0,
       1.0,
       0.0)
-    val coef1 = DenseMatrix.rand[Double](4, 3) - 0.5
-    val coef2 = DenseMatrix.rand[Double](1, 4) - 0.5
-    val coef = List(coef1, coef2)
     val layers = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
-    val theta = Adam(rate = 0.3)
-      .minimize(nnError(layers, output), input, layers.pack(coef))
+    val weights = Adam(rate = 0.3)
+      .minimize(nnError(layers, output), input)
       .through(iter(500))
       .observe(logStdOut)
       .observe(plotToFile("Adam:simple-ANN.png"))
       .runSync.vars
     var error = nnError(layers, output).apply(input)
-    error(theta) should beWithinTolerance(0, 0.1)
+    error(weights) should beWithinTolerance(0, 0.1)
   }
 
   "neural network" should "classify with high accuracy" in {
     val read = breeze.linalg.csvread(resource("logistic_regression_1.scv"))
     val (scale, input) = normalize(read(::, 0 to 1))
     val output = read(::, 2).toDenseMatrix.t
-    val coef1 = DenseMatrix.rand[Double](4, 2) - 0.5
-    val coef2 = DenseMatrix.rand[Double](1, 4) - 0.5
-    val coef = List(coef1, coef2)
     val model = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
-    val theta = SGD(rate = 0.5)
-      .minimize(nnError(model, output), input, model.pack(coef))
+    val weights = SGD(rate = 0.5)
+      .minimize(nnError(model, output(0 to 89, ::)), input(0 to 89, ::))
       .through(iter(50))
       .observe(logStdOut)
       .observe(plotToFile("Adam:ANN-instead-of-logistic.png"))
       .runSync.vars
-    val classifier = nn(model)(theta)
-    val prediction = classifier(input).map(value => if (value > 0.5) 1.0 else 0.0)
-    val accuracy = sum((prediction :== output).map(value => if (value) 1.0 else 0.0))
-    accuracy should beWithinTolerance(91, 5)
+    val classifier = nn(model)(weights)
+    val prediction = classifier(input(90 to 99, ::)).map(value => if (value > 0.5) 1.0 else 0.0)
+    val accuracy = sum((prediction :== output(90 to 99, ::)).map(value => if (value) 1.0 else 0.0))
+    accuracy should beWithinTolerance(10, 3)
   }
 
 }

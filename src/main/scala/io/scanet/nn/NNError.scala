@@ -3,7 +3,6 @@ package io.scanet.nn
 import breeze.linalg.{*, DenseMatrix, DenseVector, sum}
 import breeze.numerics.pow
 import io.scanet.func.DiffFunction
-import io.scanet.func.DiffFunction.DFBuilder
 
 case class NNError[A: Layer](layer: A, in: DenseMatrix[Double], out: DenseMatrix[Double])
 
@@ -27,6 +26,17 @@ trait NNErrorFunctionInst extends Layer.ToLayerOps {
         sum(squaredErrors) / (2 * column.length)
       })
       sum(errorPerLabel)
+    }
+
+    override def arity(f: NNError[A]): Int = {
+      def foldLeft(acc: Int, shape: List[Shape]): Int = shape match {
+        case Nil => acc
+        case first::second::tail =>
+          val firstUnits = if (second.bias) first.units + 1 else first.units
+          foldLeft(acc + firstUnits * second.units, if (tail != Nil) second::tail else Nil)
+      }
+      val fullShape = Shape(f.in.cols, bias = false) :: f.layer.shape
+      foldLeft(0, fullShape)
     }
   }
 }

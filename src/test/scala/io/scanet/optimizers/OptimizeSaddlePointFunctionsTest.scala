@@ -12,7 +12,7 @@ class OptimizeSaddlePointFunctionsTest extends FlatSpec with CustomMatchers {
 
   "SGD" should "stack in a saddle point of x^4 - 2x^2 + y^2 function" in {
     val vars = SGD()
-      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, DenseVector(0.0001, 0.0001))
+      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, Some(DenseVector(0.0001, 0.0001)))
       .through(iter(100))
       .observe(logStdOut)
       .observe(plotToFile("SGD:x^4 - 2x^2 + y^2.png"))
@@ -22,7 +22,7 @@ class OptimizeSaddlePointFunctionsTest extends FlatSpec with CustomMatchers {
 
   "SGD with momentum" should "pass a saddle point of x^4 - 2x^2 + y^2 function" in {
     val vars = SGD(rate = 0.1, momentum = 0.9)
-      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, DenseVector(0.0001, 0.0001))
+      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, Some(DenseVector(0.0001, 0.0001)))
       .through(iter(100))
       .observe(logStdOut)
       .observe(plotToFile("Momentum:x^4 - 2x^2 + y^2.png"))
@@ -32,7 +32,7 @@ class OptimizeSaddlePointFunctionsTest extends FlatSpec with CustomMatchers {
 
   "SGD with Nesterov momentum" should "pass a saddle point of x^4 - 2x^2 + y^2 function" in {
     val vars = SGD(momentum = 0.9, nesterov = true)
-      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, DenseVector(0.0001, 0.0001))
+      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, Some(DenseVector(0.0001, 0.0001)))
       .through(iter(100))
       .observe(logStdOut)
       .observe(plotToFile("Nesterov:x^4 - 2x^2 + y^2.png"))
@@ -42,7 +42,7 @@ class OptimizeSaddlePointFunctionsTest extends FlatSpec with CustomMatchers {
 
   "RMSProp" should "pass a saddle point of x^4 - 2x^2 + y^2 function" in {
     val vars = RMSProp(rate = 0.1)
-      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, DenseVector(0.0001, 0.0001))
+      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, Some(DenseVector(0.0001, 0.0001)))
       .through(iter(100))
       .observe(logStdOut)
       .observe(plotToFile("RMSProp:x^4 - 2x^2 + y^2.png"))
@@ -52,7 +52,7 @@ class OptimizeSaddlePointFunctionsTest extends FlatSpec with CustomMatchers {
 
   "AdaGrad" should "pass a saddle point of x^4 - 2x^2 + y^2 function" in {
     val vars = AdaGrad(rate = 1)
-      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, DenseVector(0.0001, 0.0001))
+      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, Some(DenseVector(0.0001, 0.0001)))
       .through(iter(100))
       .observe(logStdOut)
       .observe(plotToFile("AdaGrad:x^4 - 2x^2 + y^2.png"))
@@ -62,7 +62,7 @@ class OptimizeSaddlePointFunctionsTest extends FlatSpec with CustomMatchers {
 
   "AdaDelta" should "pass a saddle point of x^4 - 2x^2 + y^2 function" in {
     val vars = AdaDelta(rho = 0.9999)
-      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, DenseVector(0.0001, 0.0001))
+      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, Some(DenseVector(0.0001, 0.0001)))
       .through(iter(1000))
       .observe(logStdOut)
       .observe(plotToFile("AdaDelta:x^4 - 2x^2 + y^2.png"))
@@ -72,7 +72,7 @@ class OptimizeSaddlePointFunctionsTest extends FlatSpec with CustomMatchers {
 
   "Adam" should "pass a saddle point of x^4 - 2x^2 + y^2 function" in {
     val vars = Adam(rate = 0.01, beta2 = 0.9)
-      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, DenseVector(0.0001, 0.0001))
+      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, Some(DenseVector(0.0001, 0.0001)))
       .through(iter(100))
       .observe(logStdOut)
       .observe(plotToFile("Adam:x^4 - 2x^2 + y^2.png"))
@@ -82,7 +82,7 @@ class OptimizeSaddlePointFunctionsTest extends FlatSpec with CustomMatchers {
 
   "Adamax" should "pass a saddle point of x^4 - 2x^2 + y^2 function" in {
     val vars = Adamax(rate = 0.01, beta2 = 0.9)
-      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, DenseVector(0.0001, 0.0001))
+      .minimize(polynomial, `x0^4 - 2*x0^2 + x1^2`, Some(DenseVector(0.0001, 0.0001)))
       .through(iter(100))
       .observe(logStdOut)
       .observe(plotToFile("Adamax:x^4 - 2x^2 + y^2.png"))

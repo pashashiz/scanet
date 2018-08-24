@@ -9,14 +9,13 @@ import simulacrum.typeclass
 
   def apply(f: A , vars: DenseVector[Double]): Double
 
-  def apply(f: A , vars: DenseMatrix[Double]): DenseVector[Double] =
-    vars(*, ::).map(apply(f, _))
+  def arity(f: A): Int = 1
 
   def apply1(f: A, vars1: Double): Double =
     apply(f, DenseVector(vars1))
 
   def apply1(f: A, vars1: DenseVector[Double]): DenseVector[Double] =
-    apply(f, DenseMatrix(vars1))
+    vars1.map(apply1(f, _))
 
   def apply1(f: A, vars1: DenseMatrix[Double]): DenseMatrix[Double] =
     vars1(*, ::).map(apply1(f, _))
@@ -27,14 +26,11 @@ import simulacrum.typeclass
 
   def gradient(f: A , vars: DenseVector[Double]): DenseVector[Double]
 
-  def gradient(f: A , vars: DenseMatrix[Double]): DenseMatrix[Double] =
-    vars(*, ::).map(gradient(f, _))
-
   def gradient1(f: A , vars1: Double): Double =
     gradient(f, DenseVector(vars1))(0)
 
   def gradient1(f: A , vars1: DenseVector[Double]): DenseVector[Double] =
-    gradient(f, DenseMatrix(vars1))(::, 0)
+    vars1.map(gradient1(f, _))
 
   def gradient1(f: A , vars1: DenseMatrix[Double]): DenseMatrix[Double] =
     vars1(*, ::).map(gradient1(f, _))

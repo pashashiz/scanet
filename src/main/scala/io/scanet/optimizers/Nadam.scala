@@ -22,8 +22,7 @@ trait NadamInst extends FunctionsSyntax {
           coef(from until math.min(from + size, coef.rows), ::)
       }
       val sign = if (min) -1.0 else 1.0
-      Stream.iterateEval[IO, Event[B]](Event(Result(0, 0, initVars), Given(f, coef),
-        (fill(initVars.length, 0.0), fill(initVars.length, 0.0))))(prev => {
+      Stream.iterateEval[IO, Event[B]](Event(Result(0, 0, initVars), Given(f, coef), (fill(initVars.length, 0.0), fill(initVars.length, 0.0))))(prev => {
         IO {
           val Result(epoch, i, vars) = prev.result
           val gradient: DenseVector[Double] = f(range(i, op.batch)).gradient(vars)

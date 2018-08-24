@@ -54,6 +54,8 @@ package object func {
         }
         sum(varsExp.t(*, ::))
       }
+
+      override def arity(f: Polynomial): Int = f.coef.cols
     }
   }
 
@@ -143,6 +145,8 @@ package object func {
         val fx = xs * vars
         1.0/f.coef.rows * (xs.t * (fx - y))
       }
+
+      override def arity(f: LinearRegression): Int = f.coef.cols - 1
     }
   }
 
@@ -170,6 +174,8 @@ package object func {
         val s = breeze.numerics.sigmoid(xs * vars)
         1.0/f.coef.rows * (xs.t * (s - y))
       }
+
+      override def arity(f: LogisticRegression): Int = f.coef.cols - 1
     }
   }
 

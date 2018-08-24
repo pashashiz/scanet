@@ -13,16 +13,8 @@ class FuncTest extends FlatSpec with CustomMatchers {
     Linear(DenseVector(1.0, 1.0))(DenseVector(1.0, 2.0)) should be(3.0)
   }
 
-  it should "have right result when bulk calculation" in {
-    Linear(DenseVector(1.0, 1.0))(DenseMatrix((1.0, 2.0),(3.0, 4.0))) should be(DenseVector(3.0, 7.0))
-  }
-
   it should "have right gradient" in {
     Linear(DenseVector(1.0, 1.0)) gradient DenseVector(1.0, 2.0) should be(DenseVector(1.0, 1.0))
-  }
-
-  it should "have right gradient when bulk calculation" in {
-    Linear(DenseVector(1.0, 1.0)) gradient DenseMatrix((1.0, 2.0), (3.0, 4.0)) should be(DenseMatrix((1.0, 1.0), (1.0, 1.0)))
   }
 
   "linear regression function" should "have valid implementation" in {
@@ -74,6 +66,6 @@ class FuncTest extends FlatSpec with CustomMatchers {
   }
 
   it should "have right gradient when bulk calculation" in {
-    Sigmoid() gradient1 DenseVector(0.0, 1.0, 1.0) should beWithinTolerance(DenseVector(0.25, 0.196, 0), 0.01)
+    Sigmoid() gradient1 DenseVector(0.0, 1.0, 5) should beWithinTolerance(DenseVector(0.25, 0.196, 0), 0.01)
   }
 }
