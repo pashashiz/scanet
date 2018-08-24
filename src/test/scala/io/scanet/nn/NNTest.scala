@@ -148,16 +148,17 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
     val read = csvread(resource("logistic_regression_1.scv"))
     val (inputRaw, output) = splitColsAt(read, 2)
     val (_, input) = normalize(inputRaw)
+    val (learning, training) = (0 to 89, 90 to 99)
     val model = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
     val weights = SGD(rate = 0.5)
-      .minimize(nnError(model, output(0 to 89, ::)), input(0 to 89, ::))
+      .minimize(nnError(model, output(learning, ::)), input(learning, ::))
       .through(iter(50))
       .observe(logStdOut)
       .observe(plotToFile("Adam:ANN-instead-of-logistic.png"))
       .runSync.vars
     val classifier = nn(model)(weights)
-    val prediction = classifier(input(90 to 99, ::)).map(value => if (value > 0.5) 1.0 else 0.0)
-    val accuracy = sum((prediction :== output(90 to 99, ::)).map(value => if (value) 1.0 else 0.0))
+    val prediction = classifier(input(training, ::)).map(value => if (value > 0.5) 1.0 else 0.0)
+    val accuracy = sum((prediction :== output(training, ::)).map(value => if (value) 1.0 else 0.0))
     accuracy should beWithinTolerance(10, 3)
   }
 
