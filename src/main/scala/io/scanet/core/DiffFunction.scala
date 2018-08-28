@@ -1,15 +1,17 @@
-package io.scanet.func
+package io.scanet.core
 
 import breeze.linalg.{*, DenseMatrix, DenseVector}
-import io.scanet.core._
 import simulacrum.typeclass
 
 
 @typeclass trait Function[A] extends Product[A] {
 
+  def arity(f: A): Int = 1
+
   def apply(f: A , vars: DenseVector[Double]): Double
 
-  def arity(f: A): Int = 1
+  def apply(f: A , vars: DenseMatrix[Double]): DenseVector[Double] =
+    vars(*, ::).map(apply(f, _))
 
   def apply1(f: A, vars1: Double): Double =
     apply(f, DenseVector(vars1))
@@ -25,6 +27,9 @@ import simulacrum.typeclass
 @typeclass trait DiffFunction[A] extends Function[A] {
 
   def gradient(f: A , vars: DenseVector[Double]): DenseVector[Double]
+
+  def gradient(f: A , vars: DenseMatrix[Double]): DenseMatrix[Double] =
+    vars(*, ::).map(gradient(f, _))
 
   def gradient1(f: A , vars1: Double): Double =
     gradient(f, DenseVector(vars1))(0)
@@ -45,10 +50,5 @@ import simulacrum.typeclass
 
 }
 
-object DiffFunction {
-
-  type DFBuilder[B] = DenseMatrix[Double] => B
-
-}
 
 

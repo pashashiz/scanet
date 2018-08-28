@@ -1,7 +1,7 @@
 package io.scanet.nn
 
 import breeze.linalg.{DenseMatrix, DenseVector}
-import io.scanet.func.FunctionM
+import io.scanet.core.FunctionM
 
 case class NN[A: Layer](layer: A, theta: DenseVector[Double])
 

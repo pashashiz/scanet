@@ -1,7 +1,10 @@
-package io.scanet.func
+package io.scanet.core
+
+import io.scanet.core.func._
 
 trait FunctionsInst
   extends OtherFunctionsInst
+    with ZeroFunctionInst
     with LinearFunctionInst
     with PolynomialFunctionInst
     with LinearRegressionFunctionInst

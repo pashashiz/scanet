@@ -1,9 +1,11 @@
 package io.scanet.nn
 
 import breeze.linalg._
-import io.scanet.func.{Sigmoid, SigmoidInst}
+import io.scanet.core.func._
+import io.scanet.core.metrics.binaryAccuracy
 import io.scanet.linalg.splitColsAt
 import io.scanet.optimizers.{Adam, SGD}
+import io.scanet.preprocessing.MNIST
 import io.scanet.syntax._
 import io.scanet.test.CustomMatchers
 import org.scalatest.FlatSpec
@@ -11,7 +13,7 @@ import org.scalatest.FlatSpec
 import scala.concurrent.ExecutionContext.Implicits._
 
 
-class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with OtherLayersInst with SigmoidInst with NNInst {
+class NNTest extends FlatSpec with CustomMatchers {
 
   "dense layer" should "have working forward propagation" in {
     // M: 4, IN: 3, OUT: 4
@@ -51,7 +53,7 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       (0.0041, 0.0203, 0.0407, 0.000),
       (0.0043, 0.0215, 0.0430, 0.000),
       (-0.0127, -0.0637, -0.1274, 0.000))
-    val (delta, grad) = Dense(4, activation = Sigmoid()) backprop (List(coef), input, error)
+    val (delta, grad) = Dense(4, activation = Sigmoid()) backward (List(coef), input, error)
     val expected = DenseMatrix(
       (-0.002, -0.007, -0.004, -0.003),
       (-0.019, -0.004, -0.005, -0.019),
@@ -75,7 +77,7 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
     val coef2 = DenseMatrix(
       (0.0, 0.1, 0.5, 1.0, 0.0))
     val coef = List(coef1, coef2)
-    val nn = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
+    val nn = Dense(4, Sigmoid()) |&| Dense(1, Sigmoid())
     val output = nn forward (coef, input)
     val expected = DenseMatrix(
       0.705,
@@ -100,7 +102,7 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
     val coef2 = DenseMatrix(
       (0.0, 0.1, 0.5, 1.0, 0.0))
     val coef = List(coef1, coef2)
-    val nn = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
+    val nn = Dense(4, Sigmoid()) |&| Dense(1, Sigmoid())
     val output = nn forward (coef, input)
     val outputExpected = DenseMatrix(
       0.0,
@@ -108,7 +110,7 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       1.0,
       0.0)
     val error = outputExpected - output
-    val (delta, grad) = nn backprop (coef, input, error)
+    val (delta, grad) = nn backward (coef, input, error)
     val grad1::grad2::Nil = grad
     val expectedGrad1 = DenseMatrix(
       (-0.003, -0.001, -0.000, -0.003),
@@ -120,6 +122,8 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       (-0.191, -0.152, -0.121, -0.131, -0.129))
     grad2 should beWithinTolerance(expectedGrad2, 0.01)
   }
+
+  // TODO: test regularization
 
   "simple neural network" should "be optimized with low error" in {
     // M: 4, IN: 3, Layer 1: 4, Layer 2: 1
@@ -133,7 +137,7 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       1.0,
       1.0,
       0.0)
-    val layers = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
+    val layers = Dense(4, Sigmoid()) |&| Dense(1, Sigmoid())
     val weights = Adam(rate = 0.3)
       .minimize(nnError(layers, output), input)
       .through(iter(500))
@@ -149,7 +153,7 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
     val (inputRaw, output) = splitColsAt(read, 2)
     val (_, input) = normalize(inputRaw)
     val (learning, training) = (0 to 89, 90 to 99)
-    val model = Dense(4, Sigmoid()) |+| Dense(1, Sigmoid())
+    val model = Dense(4, Sigmoid()) |&| Dense(1, Sigmoid())
     val weights = SGD(rate = 0.5)
       .minimize(nnError(model, output(learning, ::)), input(learning, ::))
       .through(iter(50))
@@ -157,9 +161,26 @@ class NNTest extends FlatSpec with CustomMatchers with DenseLayerInst with Other
       .observe(plotToFile("Adam:ANN-instead-of-logistic.png"))
       .runSync.vars
     val classifier = nn(model)(weights)
-    val prediction = classifier(input(training, ::)).map(value => if (value > 0.5) 1.0 else 0.0)
-    val accuracy = sum((prediction :== output(training, ::)).map(value => if (value) 1.0 else 0.0))
-    accuracy should beWithinTolerance(10, 3)
+    val prediction = classifier(input(training, ::))
+    binaryAccuracy(output(training, ::), prediction) should be > 0.9
+  }
+
+  "neural network" should "classify MNIST data set" in {
+    val training = MNIST.loadTrainingSet(2000)
+    val test = MNIST.loadTestSet(100)
+    val (factor, input) = normalize(training.input)
+    val model = Dense(25, Sigmoid(), kernelReg = L2(0.1)) |&| Dense(10, Sigmoid(), kernelReg = L2(0.1))
+    val weights = Adam(rate = 0.02, batch = 2000)
+      .minimize(nnError(model, training.labels), input)
+      .through(iter(500))
+      .observe(logStdOut)
+      .observe(plotToFile("MNIST.png"))
+      .runSync.vars
+    val classifier = nn(model)(weights)
+    val prediction = classifier(normalize(test.input, factor))
+    val accuracy = binaryAccuracy(test.labels, prediction)
+    println(s"accuracy: $accuracy")
+    accuracy should be > 0.7
   }
 
 }

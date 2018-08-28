@@ -1,8 +1,7 @@
-package io.scanet.func
+package io.scanet.core
 
 import breeze.linalg.DenseVector
-import io.scanet.core.ProductK
-import io.scanet.func.DiffFunction.DFBuilder
+
 
 trait OtherFunctionsInst {
 

@@ -1,7 +1,6 @@
 package io.scanet
 
-import io.scanet.core.CoreSyntax
-import io.scanet.func.{FunctionsInst, FunctionsSyntax}
+import io.scanet.core.{CoreSyntax, FunctionsInst, FunctionsSyntax}
 import io.scanet.nn.{NNInst, NNSyntax}
 import io.scanet.optimizers.{OptimizerInst, OptimizerSyntax}
 

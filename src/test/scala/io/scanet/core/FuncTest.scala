@@ -1,9 +1,9 @@
-package io.scanet.func
+package io.scanet.core
 
 import breeze.linalg.DenseVector.zeros
 import breeze.linalg.{DenseMatrix, DenseVector}
-import io.scanet.func.DiffFunction.DFBuilder
 import io.scanet.syntax._
+import io.scanet.core.func._
 import io.scanet.test.CustomMatchers
 import org.scalatest.FlatSpec
 
@@ -42,14 +42,14 @@ class FuncTest extends FlatSpec with CustomMatchers {
   }
 
   "function combining" should "work" in {
-    val c = Linear(DenseVector(1.0, 1.0)) |+| Linear(DenseVector(2.0, 2.0))
+    val c = Linear(DenseVector(1.0, 1.0)) |&| Linear(DenseVector(2.0, 2.0))
     c(DenseVector(1.0, 2.0)) should be(9.0)
   }
 
   "builder combining" should "work" in {
     val b1: DFBuilder[Linear] = coef => Linear(coef(0, ::).t)
     val b2: DFBuilder[Linear] = coef => Linear(coef(0, ::).t + 1.0)
-    val b12: DFBuilder[(Linear, Linear)] = b1 <+> b2
+    val b12: DFBuilder[(Linear, Linear)] = b1 <&> b2
     b12(DenseMatrix((1.0, 2.0)))(DenseVector(1.0, 1.0)) should be(8.0)
   }
 

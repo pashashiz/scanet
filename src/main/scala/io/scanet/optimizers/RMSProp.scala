@@ -5,8 +5,9 @@ import breeze.linalg._
 import breeze.numerics._
 import cats.effect.IO
 import fs2.Stream
-import io.scanet.func.{DiffFunction, FunctionsSyntax}
-import io.scanet.func.DiffFunction.DFBuilder
+import io.scanet.core.FunctionsSyntax
+import io.scanet.core.DiffFunction
+import io.scanet.core.DFBuilder
 
 case class RMSProp(batch: Int = 256, rate: Double = 0.001, rho: Double = 0.9)
 

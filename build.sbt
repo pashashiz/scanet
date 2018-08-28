@@ -14,6 +14,7 @@ libraryDependencies ++= Seq(
   "org.scalanlp" %% "breeze" % "0.13.2",
   "org.scalanlp" %% "breeze-natives" % "0.13.2",
   "org.scalanlp" %% "breeze-viz" % "0.13.2",
+//  "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8",
   "org.scalacheck" %% "scalacheck" % "1.13.5" % "test",
   "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )

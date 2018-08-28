@@ -2,7 +2,7 @@ package io.scanet.nn
 
 import breeze.linalg.{*, DenseMatrix, DenseVector, sum}
 import breeze.numerics.pow
-import io.scanet.func.DiffFunction
+import io.scanet.core.DiffFunction
 
 case class NNError[A: Layer](layer: A, in: DenseMatrix[Double], out: DenseMatrix[Double])
 
@@ -13,8 +13,9 @@ trait NNErrorFunctionInst extends Layer.ToLayerOps {
     override def gradient(f: NNError[A], vars: DenseVector[Double]): DenseVector[Double] = {
       var theta = f.layer.unpack(f.in.cols)(vars)
       var error =  f.layer.forward(theta, f.in) - f.out
-      var (_, grad) = f.layer.backprop(theta, f.in, error)
-      f.layer.pack(grad)
+      var (_, grad) = f.layer.backward(theta, f.in, error)
+      val penalty = f.layer.backwardPenalty(theta)
+      f.layer.pack(grad) + f.layer.pack(penalty)
     }
 
     override def apply(f: NNError[A], vars: DenseVector[Double]): Double = {
@@ -25,7 +26,8 @@ trait NNErrorFunctionInst extends Layer.ToLayerOps {
         val squaredErrors: DenseVector[Double] = pow(column, 2)
         sum(squaredErrors) / (2 * column.length)
       })
-      sum(errorPerLabel)
+      val penalty = f.layer.forwardPenalty(theta)
+      sum(errorPerLabel) + penalty
     }
 
     override def arity(f: NNError[A]): Int = {

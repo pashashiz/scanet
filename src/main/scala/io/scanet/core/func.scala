@@ -1,10 +1,27 @@
-package io.scanet
+package io.scanet.core
 
-import breeze.linalg._
-import breeze.numerics._
-import io.scanet.func.DiffFunction.DFBuilder
+import breeze.linalg.{*, DenseMatrix, DenseVector, max, sum}
+import breeze.numerics.{abs, log, pow, signum}
 
-package object func {
+object func {
+
+  /**
+    * Function which always returns 0 result
+    */
+  case class Zero()
+
+  def zero: DFBuilder[Zero] = coef => Zero()
+
+  trait ZeroFunctionInst {
+
+    implicit def zeroInst: DiffFunction[Zero] = new DiffFunction[Zero] {
+
+      override def apply(f: Zero, vars: DenseVector[Double]): Double = 0.00
+
+      override def gradient(f: Zero, vars: DenseVector[Double]): DenseVector[Double] =
+        DenseVector.zeros(vars.length)
+    }
+  }
 
   /**
     * Linear function: `k0*x0 + k1*x1 + .. + kn*xn`
@@ -19,6 +36,8 @@ package object func {
   trait LinearFunctionInst {
 
     implicit def linearFunctionInst: DiffFunction[Linear] = new DiffFunction[Linear] {
+
+      override def arity(f: Linear): Int = f.coef.length
 
       override def apply(f: Linear, vars: DenseVector[Double]): Double = f.coef.t * vars
 
@@ -40,6 +59,8 @@ package object func {
 
     implicit def polynomialFunctionInst: DiffFunction[Polynomial] = new DiffFunction[Polynomial] {
 
+      override def arity(f: Polynomial): Int = f.coef.cols
+
       override def apply(f: Polynomial, vars: DenseVector[Double]): Double = {
         var rows: Seq[Double] =
           for (i <- 0 until f.coef.rows)
@@ -54,8 +75,6 @@ package object func {
         }
         sum(varsExp.t(*, ::))
       }
-
-      override def arity(f: Polynomial): Int = f.coef.cols
     }
   }
 
@@ -190,23 +209,24 @@ package object func {
     * Computes “absolute value of magnitude” of coefficients.
     *
     * @param lambda regularization coefficient
+    * @param ignoreFirst ignore regularization for first variable
     */
-  case class L1(coef: DenseMatrix[Double], lambda: Double)
+  case class L1(lambda: Double = 1.0, ignoreFirst: Boolean = false)
 
-  def l1(lambda: Double = 1.0): DFBuilder[L1] = coef => L1(coef, lambda)
+  def l1(lambda: Double = 1.0, ignoreFirst: Boolean = false): DFBuilder[L1] = coef => L1(lambda, ignoreFirst)
 
   trait L1FunctionInst {
 
     implicit def l1FunctionInst: DiffFunction[L1] = new DiffFunction[L1] {
 
       override def apply(f: L1, vars: DenseVector[Double]): Double = {
-        val varsWithoutFirst = vars(1 until vars.length)
-        (f.lambda/(2 * f.coef.cols)) * sum(abs(varsWithoutFirst))
+        val varsI = if (f.ignoreFirst) vars(1 until vars.length) else vars
+        (f.lambda/2) * sum(abs(varsI))
       }
 
       override def gradient(f: L1, vars: DenseVector[Double]): DenseVector[Double] = {
-        val varsWithZeroFirst = DenseVector.vertcat(DenseVector(0.0), vars(1 until vars.length))
-        (f.lambda/f.coef.cols) *:* signum(varsWithZeroFirst)
+        val varsI = if (f.ignoreFirst) DenseVector.vertcat(DenseVector(0.0), vars(1 until vars.length)) else vars
+        f.lambda * signum(varsI)
       }
     }
   }
@@ -216,23 +236,24 @@ package object func {
     * Computes squared magnitude of coefficients.
     *
     * @param lambda regularization coefficient
+    * @param ignoreFirst ignore regularization for first variable
     */
-  case class L2(coef: DenseMatrix[Double], lambda: Double)
+  case class L2(lambda: Double = 1.0, ignoreFirst: Boolean = false)
 
-  def l2(lambda: Double = 1.0): DFBuilder[L2] = coef => L2(coef, lambda)
+  def l2(lambda: Double = 1.0, ignoreFirst: Boolean = false): DFBuilder[L2] = coef => L2(lambda, ignoreFirst)
 
   trait L2FunctionInst {
 
     implicit def l2FunctionInst: DiffFunction[L2] = new DiffFunction[L2] {
 
       override def apply(f: L2, vars: DenseVector[Double]): Double = {
-        val varsWithoutFirst = vars(1 until vars.length)
-        (f.lambda/(2 * f.coef.cols)) * sum(pow(varsWithoutFirst, 2))
+        val varsI = if (f.ignoreFirst) vars(1 until vars.length) else vars
+        (f.lambda/2) * sum(pow(varsI, 2))
       }
 
       override def gradient(f: L2, vars: DenseVector[Double]): DenseVector[Double] = {
-        val varsWithZeroFirst = DenseVector.vertcat(DenseVector(0.0), vars(1 until vars.length))
-        (f.lambda/f.coef.cols) *:* varsWithZeroFirst
+        val varsI = if (f.ignoreFirst) DenseVector.vertcat(DenseVector(0.0), vars(1 until vars.length)) else vars
+        f.lambda * varsI
       }
     }
   }

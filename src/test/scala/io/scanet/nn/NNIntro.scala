@@ -1,7 +1,7 @@
 package io.scanet.nn
 
 import breeze.linalg._
-import io.scanet.func.Sigmoid
+import io.scanet.core.func.Sigmoid
 import io.scanet.syntax._
 import org.scalatest.FlatSpec
 

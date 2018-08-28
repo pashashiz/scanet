@@ -4,8 +4,8 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import simulacrum.typeclass
 import fs2.Stream
 import cats.effect.IO
-import io.scanet.func.DiffFunction
-import io.scanet.func.DiffFunction.DFBuilder
+import io.scanet.core.DiffFunction
+import io.scanet.core.DFBuilder
 
 @typeclass
 trait Optimizer[A] {

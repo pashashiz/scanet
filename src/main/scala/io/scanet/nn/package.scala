@@ -2,7 +2,7 @@ package io.scanet
 
 import breeze.linalg._
 import breeze.stats._
-import io.scanet.func.DiffFunction.DFBuilder
+import io.scanet.core.DFBuilder
 
 package object nn {
 
@@ -14,6 +14,9 @@ package object nn {
     (Scaled(shift, scale), (data - shift) / scale)
   }
 
+  def normalize(data: DenseMatrix[Double], scaled: Scaled): DenseMatrix[Double] = {
+    (data - scaled.shift) / scaled.scale
+  }
 
   def nnError[A: Layer](layer: A, out: DenseMatrix[Double]): DFBuilder[NNError[A]] =
     coef => NNError(layer, coef, out)

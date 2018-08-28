@@ -4,8 +4,9 @@ import breeze.linalg.DenseVector.fill
 import breeze.linalg.{DenseMatrix, DenseVector}
 import cats.effect.IO
 import fs2.Stream
-import io.scanet.func.{DiffFunction, FunctionsSyntax}
-import io.scanet.func.DiffFunction.DFBuilder
+import io.scanet.core.FunctionsSyntax
+import io.scanet.core.DiffFunction
+import io.scanet.core.DFBuilder
 
 case class SGD(batch: Int = 256, rate: Double = 0.01, momentum: Double = 0.0, nesterov: Boolean = false)
 

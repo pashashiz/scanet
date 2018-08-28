@@ -1,7 +1,7 @@
 package io.scanet.optimizers
 
 import io.scanet.syntax._
-import io.scanet.func._
+import io.scanet.core.func._
 import io.scanet.test.CustomMatchers
 import org.scalatest.FlatSpec
 import scala.concurrent.ExecutionContext.Implicits._

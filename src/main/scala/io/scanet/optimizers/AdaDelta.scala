@@ -5,13 +5,12 @@ import breeze.linalg.DenseVector.fill
 import breeze.numerics.pow
 import cats.effect.IO
 import fs2.Stream
-import io.scanet.func.DiffFunction
-import io.scanet.func.DiffFunction.DFBuilder
-import DiffFunction.ops._
+import io.scanet.core.{DiffFunction, FunctionsSyntax}
+import io.scanet.core.DFBuilder
 
 case class AdaDelta(batch: Int = 256, rate: Double = 1, rho: Double = 0.9)
 
-trait AdaDeltaInst {
+trait AdaDeltaInst extends FunctionsSyntax {
 
   implicit def AdaDeltaOptimizer: Optimizer[AdaDelta] = new Optimizer[AdaDelta] {
     override def optimize[B: DiffFunction](op: AdaDelta, f: DFBuilder[B], coef: DenseMatrix[Double],

@@ -5,8 +5,9 @@ import breeze.linalg._
 import breeze.numerics._
 import cats.effect.IO
 import fs2.Stream
-import io.scanet.func.{DiffFunction, FunctionsSyntax}
-import io.scanet.func.DiffFunction.DFBuilder
+import io.scanet.core.{DiffFunction, FunctionsSyntax}
+import io.scanet.core.DFBuilder
+
 
 case class AdaGrad(batch: Int = 256, rate: Double = 0.01)
 

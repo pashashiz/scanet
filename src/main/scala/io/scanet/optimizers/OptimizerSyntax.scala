@@ -5,8 +5,8 @@ import java.io.PrintStream
 import breeze.linalg.DenseVector
 import cats.effect.{IO, Sync}
 import fs2.{Pipe, Pull, Segment, Sink, Stream}
-import io.scanet.func.DiffFunction
-import io.scanet.func.DiffFunction.ops._
+import io.scanet.core.DiffFunction
+import io.scanet.core.DiffFunction.ops._
 
 import scala.language.{higherKinds, implicitConversions}
 
@@ -27,7 +27,7 @@ trait OptimizerSyntax extends Optimizer.ToOptimizerOps {
         val Event(Result(epoch, i, vars), Given(f, coef), _) = event
         val gradient = f(coef).gradient(vars)
         val value = f(coef)(vars)
-        out.print(s"$epoch:$i\t Δ = $gradient\t vars = $vars \t f = $value\n")
+        out.print(s"$epoch:$i\t f = $value\n")
       })))
     }
 

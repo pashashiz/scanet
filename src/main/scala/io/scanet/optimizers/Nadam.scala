@@ -5,8 +5,9 @@ import breeze.linalg.DenseVector.fill
 import breeze.numerics.pow
 import cats.effect.IO
 import fs2.Stream
-import io.scanet.func.{DiffFunction, FunctionsSyntax}
-import io.scanet.func.DiffFunction.DFBuilder
+import io.scanet.core.DFBuilder
+import io.scanet.core.{DiffFunction, FunctionsSyntax}
+
 
 case class Nadam(batch: Int = 256, rate: Double = 0.001, beta1: Double = 0.9, beta2: Double = 0.999)
 
