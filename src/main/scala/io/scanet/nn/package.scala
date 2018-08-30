@@ -3,6 +3,7 @@ package io.scanet
 import breeze.linalg._
 import breeze.stats._
 import io.scanet.core.DFBuilder
+import io.scanet.nn.Layer.ops._
 
 package object nn {
 
@@ -18,8 +19,13 @@ package object nn {
     (data - scaled.shift) / scaled.scale
   }
 
-  def nnError[A: Layer](layer: A, out: DenseMatrix[Double]): DFBuilder[NNError[A]] =
-    coef => NNError(layer, coef, out)
+  def nnError[A: Layer](layer: A): DFBuilder[NNError[A]] =
+    coef => {
+      val allUnits = coef.cols
+      val outUnits = layer.shape.last.units
+      val inUnits = allUnits - outUnits
+      NNError(layer, coef(::, 0 until inUnits), coef(::, inUnits until allUnits))
+    }
 
   def nn[A: Layer](layer: A)(theta: DenseVector[Double]): NN[A] = {
     NN(layer, theta)

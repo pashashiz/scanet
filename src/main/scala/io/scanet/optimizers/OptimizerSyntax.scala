@@ -73,7 +73,7 @@ trait OptimizerSyntax extends Optimizer.ToOptimizerOps {
   }
 
   def epoch[F[_], A](n: Int): Pipe[F, Event[A], Event[A]] =
-    takeWhile[F, A, Int](0, (_: Int, event) => event.result.epoch)(_ >= n - 1)
+    takeWhile[F, A, Int](0, (_: Int, event) => event.result.epoch)(_ >= n)
 
   def iter[F[_], A](n: Int): Pipe[F, Event[A], Event[A]] =
     takeWhile[F, A, Int](0, (acc: Int, event) => acc + 1)(_ >= n - 1)
