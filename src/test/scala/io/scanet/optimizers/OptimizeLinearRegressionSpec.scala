@@ -8,7 +8,7 @@ import org.scalatest.FlatSpec
 
 import scala.concurrent.ExecutionContext.Implicits._
 
-class OptimizeLinearRegressionTest extends FlatSpec with CustomMatchers {
+class OptimizeLinearRegressionSpec extends FlatSpec with CustomMatchers {
 
   "SGD with full batch" should "find a minimum of [linear regression] within 1500 iterations" in {
     val read = breeze.linalg.csvread(resource("linear_function_1.scv"))

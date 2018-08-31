@@ -6,7 +6,7 @@ import io.scanet.test.CustomMatchers
 import org.scalatest.FlatSpec
 import scala.concurrent.ExecutionContext.Implicits._
 
-class OptimizeConvexFunctionsTest extends FlatSpec with CustomMatchers {
+class OptimizeConvexFunctionsSpec extends FlatSpec with CustomMatchers {
 
   "a gradient decent" should "find a minimum of a function x^2 within 10 iterations" in {
     val vars = SGD(rate = 0.3)

@@ -8,7 +8,7 @@ import org.scalatest.FlatSpec
 
 import scala.concurrent.ExecutionContext.Implicits._
 
-class OptimizeLogisticRegressionTest extends FlatSpec with CustomMatchers {
+class OptimizeLogisticRegressionSpec extends FlatSpec with CustomMatchers {
 
   "SGD with momentum" should "find a minimum of [logistic regression] within 1000 epochs" in {
     val read = breeze.linalg.csvread(resource("logistic_regression_1.scv"))

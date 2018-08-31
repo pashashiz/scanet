@@ -5,7 +5,7 @@ import io.scanet.test.CustomMatchers
 import io.scanet.core.metrics._
 import org.scalatest.FlatSpec
 
-class MetricsTest extends FlatSpec with CustomMatchers {
+class MetricsSpec extends FlatSpec with CustomMatchers {
 
   "binary accuracy" should "work" in {
     val expected = DenseMatrix(

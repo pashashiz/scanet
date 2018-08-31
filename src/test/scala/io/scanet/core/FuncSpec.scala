@@ -7,7 +7,7 @@ import io.scanet.core.func._
 import io.scanet.test.CustomMatchers
 import org.scalatest.FlatSpec
 
-class FuncTest extends FlatSpec with CustomMatchers {
+class FuncSpec extends FlatSpec with CustomMatchers {
 
   "linear function x1 + x2" should "have right result" in {
     Linear(DenseVector(1.0, 1.0))(DenseVector(1.0, 2.0)) should be(3.0)

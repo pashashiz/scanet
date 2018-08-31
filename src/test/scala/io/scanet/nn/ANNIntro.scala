@@ -5,7 +5,7 @@ import io.scanet.core.func.Sigmoid
 import io.scanet.syntax._
 import org.scalatest.FlatSpec
 
-class NNIntro extends FlatSpec {
+class ANNIntro extends FlatSpec {
 
   "NN intro" should "show how simple NN works" in {
     /*

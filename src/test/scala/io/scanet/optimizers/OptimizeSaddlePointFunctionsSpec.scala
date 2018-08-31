@@ -8,7 +8,7 @@ import org.scalatest.FlatSpec
 
 import scala.concurrent.ExecutionContext.Implicits._
 
-class OptimizeSaddlePointFunctionsTest extends FlatSpec with CustomMatchers {
+class OptimizeSaddlePointFunctionsSpec extends FlatSpec with CustomMatchers {
 
   "SGD" should "stack in a saddle point of x^4 - 2x^2 + y^2 function" in {
     val vars = SGD()
